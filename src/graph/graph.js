@@ -2,7 +2,8 @@ import { StateGraph, START, END } from '@langchain/langgraph'
 import * as z from 'zod'
 import LLMNode from './node.js'
 import rl from '../utils/readline.utils.js';
-import {HumanMessage} from 'langchain'
+import { HumanMessage } from 'langchain'
+
 const stateFormat = z.object({
     messages: z.array(z.any())
 });
@@ -15,16 +16,18 @@ const graph = new StateGraph(stateFormat)
 
     
 export default async function initGraph() {
+
+    let messages = [];
     
     while (true) {
         const userInput = await rl.question("[User]: ");
 
+        messages.push(new HumanMessage(userInput))
+
         const res = await graph.invoke({
-            messages: [
-                new HumanMessage(userInput)
-            ]
+            messages
         })
 
-        console.log("[AI]: ", res)
+        messages = res.messages
     }
 }
